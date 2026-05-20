@@ -10,7 +10,7 @@ class Board
 
     public function getBoard()
     {
-        return $this->board();
+        return $this->board;
     }
 
     private function checkWiner($gameBoard)
