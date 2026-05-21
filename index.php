@@ -4,10 +4,16 @@ require_once BASEPATH . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . '
 
 session_start();
 
+if (isset($_GET['reset'])) {
+    session_destroy();
+    header('Location: index.php');
+    exit();
+}
+
 if (!isset($_SESSION['board'])) {
     $gameBoard = new Board();
     $gameBoard->reset();
-
+    $winner = null;
     $player1 = new Player('Maksym', 'X');
     $player2 = new Player('Olek', 'O');
 
@@ -29,13 +35,19 @@ foreach ($_GET as $key => $value) {
 
         try {
             $gameBoard->makeMove($currentPlayer->getToken(), $x, $y);
-            if ($currentPlayerIndex === 0) {
-                $currentPlayerIndex = 1;
+            $winner = $gameBoard->checkWiner();
+            if ($winner != null) {
+                $_SESSION['winner'] = $winner;
+                $_SESSION['board'] = $gameBoard;
             } else {
-                $currentPlayerIndex = 0;
+                if ($currentPlayerIndex === 0) {
+                    $currentPlayerIndex = 1;
+                } else {
+                    $currentPlayerIndex = 0;
+                }
+                $_SESSION['board'] = $gameBoard;
+                $_SESSION['currentPlayerIndex'] = $currentPlayerIndex;
             }
-            $_SESSION['board'] = $gameBoard;
-            $_SESSION['currentPlayerIndex'] = $currentPlayerIndex;
         } catch (Exception $e) {
         }
     }
@@ -138,12 +150,20 @@ $currentPlayer = $players[$currentPlayerIndex];
             </div>
             <div class="col-md-9">
                 <p>Tic-Tac-Toe (auch: Drei gewinnt, Kreis und Kreuz, Dodelschach) ist ein klassisches, einfaches Zweipersonen-Strategiespiel, dessen Geschichte sich bis ins 12. Jahrhundert v. Chr. zurückverfolgen lässt...<br/> <small><a href="https://en.wikipedia.org/wiki/Tic-tac-toe" target="_blank">(bei Wikipedia weiterlesen...)</a></small></p>
-                <p class="bg-info" style="padding: 10px;">Du spielst das <b><?php echo $currentPlayer->getToken(); ?></b> und darfst beginnen. Klicke hierzu in das gewünschte Feld auf dem Spielfeld...</p>
+                <p class="bg-info" style="padding: 10px;"> <?php echo $currentPlayer->getNickname(); ?> spielt das <b><?php echo $currentPlayer->getToken(); ?></b> und darfst beginnen. Klicke hierzu in das gewünschte Feld auf dem Spielfeld...</p>
             </div>
         </div>
         
         <article id="mainContent">
-            <h2>Playing...</h2>
+            <?php if ($_SESSION['winner'] != null) { ?>
+            <div>
+                <p class="bg-info" style="padding: 10px;"> Der Spieler <?php echo $currentPlayer->getNickname(); ?> hat gewonnen!
+                Wollen Sie nochmal spielen?</p>
+                <form action="index.php" method="get"><button type="submit" name="reset" value="1">Reset</button></form>
+
+                
+            </div>
+            <?php } else { ?>
             <div class="row level1">
                 <div class="col-md-offset-4 col-md-4">
                     <form method="get" action="index.php">
@@ -163,10 +183,12 @@ $currentPlayer = $players[$currentPlayerIndex];
                                     <?php } ?>
                                 </tr>
                             <?php } ?>
+
                         </table>
                     </form>
                 </div>
             </div>
+           <?php } ?> 
         </article>
     </section>
     
@@ -175,7 +197,7 @@ $currentPlayer = $players[$currentPlayerIndex];
             <p>And here is some text in the footer. <br />And always make sure your html is valid here: <a class="btn btn-info btn-xs" role="button" href="https://validator.w3.org/#validate_by_input" target="_blank">https://validator.w3.org/#validate_by_input</a></p>
         </div>
         <div class="col-md-6">
-            <p class="text-right"><span class="glyphicon glyphicon-copyright-mark"></span> <span class="text-capitalize">by Anwendungsentwicklung IT-19a</span><br /><a href="http://www.esfl.de/" target="_blank">Eckener-Schule Flensburg<br /><img src="img/esfllogo-white.png" class="footer-logo img-rounded" alt="ESFL-Logo"/></a></p>
+            <p class="text-right"><span class="glyphicon glyphicon-copyright-mark"></span> <span class="text-capitalize">by Anwendungsentwicklung IT-B2-25</span><br /><a href="http://www.esfl.de/" target="_blank">Eckener-Schule Flensburg<br /><img src="img/esfllogo-white.png" class="footer-logo img-rounded" alt="ESFL-Logo"/></a></p>
         </div>
     </footer>
     

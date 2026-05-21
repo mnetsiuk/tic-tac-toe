@@ -13,19 +13,41 @@ class Board
         return $this->board;
     }
 
-    private function checkWiner($gameBoard)
+    public function checkWiner()
     {
-        for ($i = 0; $i < count($gameBoard); $i++) {
+        for ($i = 0; $i < count($this->board); $i++) {
             $lastToken = '';
             $equaleCounter = 0;
-            for ($j = 0; $j < count($gameBoard[$i]); $j++) {
-                if ($gameBoard[$i][$j] === '') {
+            for ($j = 0; $j < count($this->board[$i]); $j++) {
+                if ($this->board[$i][$j] === '') {
                     break;
                 } else {
                     if ($j === 0) {
-                        $lastToken = $gameBoard[$i][$j];
+                        $lastToken = $this->board[$i][$j];
                         $equaleCounter = 1;
-                    } elseif ($lastToken === $gameBoard[$i][$j]) {
+                    } elseif ($lastToken === $this->board[$i][$j]) {
+                        $equaleCounter++;
+                        if ($equaleCounter === 3) {
+                            return $lastToken;
+                        }
+                    } else {
+                        break;
+                    }
+                }
+            }
+        }
+
+        for ($j = 0; $j < count($this->board); $j++) {
+            $lastToken = '';
+            $equaleCounter = 0;
+            for ($i = 0; $i < count($this->board); $i++) {
+                if ($this->board[$i][$j] === '') {
+                    break;
+                } else {
+                    if ($i === 0) {
+                        $lastToken = $this->board[$i][$j];
+                        $equaleCounter = 1;
+                    } elseif ($lastToken === $this->board[$i][$j]) {
                         $equaleCounter++;
                         if ($equaleCounter === 3) {
                             return $lastToken;
